@@ -1,0 +1,25 @@
+PATH
+  remote: .
+  specs:
+    haml2slim (0.1.0)
+      haml (~> 3.0.0)
+      nokogiri
+      ruby_parser
+
+GEM
+  remote: http://rubygems.org/
+  specs:
+    haml (3.0.24)
+    nokogiri (1.4.4)
+    ruby_parser (2.0.5)
+      sexp_processor (~> 3.0)
+    sexp_processor (3.0.5)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  haml (~> 3.0.0)
+  haml2slim!
+  nokogiri
+  ruby_parser

@@ -1,0 +1,7 @@
+#!/usr/bin/env ruby
+
+$:.unshift File.dirname(__FILE__) + '/../lib'
+require 'haml2slim/command'
+
+cmd = Haml2Slim::Command.new(ARGV)
+cmd.run
