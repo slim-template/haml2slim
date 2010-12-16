@@ -1,6 +1,5 @@
 require 'optparse'
-require 'haml2slim/version'
-require 'haml2slim/converter'
+require 'haml2slim'
 
 module Haml2Slim
   class Command
@@ -66,7 +65,7 @@ module Haml2Slim
         @options[:output] = file ? File.open(file, 'w') : $stdout
       end
 
-      @options[:output].puts Haml2Slim::Converter.new(@options[:input])
+      @options[:output].puts Haml2Slim.convert!(@options[:input])
     end
   end
 end
