@@ -40,10 +40,8 @@ module Haml2Slim
       if attrs = tag_line.match(/\{(.+)\}/)
         tag   = tag_line.match(/(.+)\{/)[1]
         attrs = tag_line.match(/\{(.+)\}/)[1]
-          .gsub(/:?"?([A-Za-z0-9\-_]+)"? ?=>/, '\1 =>')
-          .gsub(/ ?=> ?/, "=")
-          .gsub('",', '"')
-          .gsub(/=([^"]+)(?: |$)/, '=(\1)')
+          .gsub(/,?( ?):?"?([^"'{ ]+)"? ?=> ?/, '\1\2=')
+          .gsub(/=([^"']+)(?: |$)/, '=(\1)')
 
         "#{tag} #{attrs}"
       else

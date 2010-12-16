@@ -20,4 +20,5 @@ Gem::Specification.new do |s|
   s.add_dependency "haml", ["~> 3.0.0"]
   s.add_dependency "nokogiri"
   s.add_dependency "ruby_parser"
+  s.add_development_dependency "slim", [">= 0.8.1"]
 end
