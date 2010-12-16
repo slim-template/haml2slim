@@ -38,7 +38,7 @@ module Haml2Slim
       tag_line.sub!(/^%/, "")
 
       if attrs = tag_line.match(/\{(.+)\}/)
-        tag   = tag_line.match(/(\w+)\{/)[1]
+        tag   = tag_line.match(/(.+)\{/)[1]
         attrs = tag_line.match(/\{(.+)\}/)[1]
           .gsub(/:?"?([A-Za-z0-9\-_]+)"? ?=>/, '\1 =>')
           .gsub(/ ?=> ?/, "=")
