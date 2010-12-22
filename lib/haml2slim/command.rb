@@ -11,7 +11,7 @@ module Haml2Slim
     def run
       @opts = OptionParser.new(&method(:set_opts))
       @opts.parse!(@args)
-      process
+      process!
       exit 0
     rescue Exception => ex
       raise ex if @options[:trace] || SystemExit === ex
@@ -47,25 +47,34 @@ module Haml2Slim
       end
     end
 
-    def process
-      args = @args.dup
+    def process!
+      @files = @args.dup
+
       unless @options[:input]
-        file = args.shift
+        file = @files.shift
         if file
           @options[:file]  = file
-          @options[:input] = File.open(file, 'r')
+          @options[:input] = file
         else
           @options[:file]  = 'STDIN'
           @options[:input] = $stdin
         end
       end
 
-      unless @options[:output]
-        file = args.shift || file.sub(/\.haml$/, '.slim')
-        @options[:output] = file ? File.open(file, 'w') : $stdout
+      if File.directory?(@options[:file])
+        Dir.glob(File.join(@options[:file], "**", "*.haml")).each { |file| _process(file) }
+      else
+        _process(file)
       end
+    end
 
-      @options[:output].puts Haml2Slim.convert!(@options[:input])
+    private
+
+    def _process(file)
+      slim_file = (File.file?(@options[:file]) ? @options[:output] : false) || file.sub(/\.haml$/, '.slim')
+      @options[:output] = file ? File.open(slim_file, 'w') : $stdout
+      @options[:output].puts Haml2Slim.convert!(File.open(file, 'r'))
+      @options[:output].close
     end
   end
 end
