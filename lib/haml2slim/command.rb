@@ -24,13 +24,7 @@ module Haml2Slim
     protected
 
     def set_opts(opts)
-      opts.on('-s', '--stdin', :NONE, 'Read input from standard input instead of an input file') do
-        @options[:input] = $stdin
-      end
-
-      opts.on('-o', '--output FILENAME', :NONE, 'Output file destination') do |filename|
-        @options[:output] = filename
-      end
+      opts.banner = "Usage: haml2slim INPUT_FILENAME_OR_DIRECTORY [OUTPUT_FILENAME_OR_DIRECTORY] [options]"
 
       opts.on('--trace', :NONE, 'Show a full traceback on error') do
         @options[:trace] = true
@@ -48,30 +42,31 @@ module Haml2Slim
     end
 
     def process!
-      @files = @args.dup
+      args = @args.dup
 
-      unless @options[:input]
-        file = @files.shift
-        if file
-          @options[:file]  = file
-          @options[:input] = file
-        else
-          @options[:file]  = 'STDIN'
-          @options[:input] = $stdin
-        end
-      end
+      @options[:input]  = file        = args.shift
+      @options[:output] = destination = args.shift
 
-      if File.directory?(@options[:file])
-        Dir["#{@options[:file]}/**/*.haml"].each { |file| _process(file) }
+      if File.directory?(@options[:input])
+        Dir["#{@options[:input]}/**/*.haml"].each { |file| _process(file, destination) }
       else
-        _process(file)
+        _process(file, destination)
       end
     end
 
     private
 
-    def _process(file)
-      slim_file = (File.file?(@options[:file]) ? @options[:output] : false) || file.sub(/\.haml$/, '.slim')
+    def _process(file, destination = nil)
+      require 'fileutils'
+      slim_file = file.sub(/\.haml$/, '.slim')
+
+      if File.directory?(@options[:input]) && destination
+        FileUtils.mkdir_p(File.dirname(slim_file).sub(@options[:input].chomp('/'), destination))
+        slim_file.sub!(@options[:input].chomp('/'), destination)
+      else
+        slim_file = destination || slim_file
+      end
+
       @options[:output] = file ? File.open(slim_file, 'w') : $stdout
       @options[:output].puts Haml2Slim.convert!(File.open(file, 'r'))
       @options[:output].close
