@@ -62,7 +62,7 @@ module Haml2Slim
       end
 
       if File.directory?(@options[:file])
-        Dir.glob(File.join(@options[:file], "**", "*.haml")).each { |file| _process(file) }
+        Dir["#{@options[:file]}/**/*.haml"].each { |file| _process(file) }
       else
         _process(file)
       end
