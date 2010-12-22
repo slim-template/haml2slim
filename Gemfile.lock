@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    haml2slim (0.3.0)
+    haml2slim (0.4.1)
       haml (~> 3.0.0)
       nokogiri
       ruby_parser
