@@ -11,8 +11,8 @@ class TestHaml2Slim < MiniTest::Unit::TestCase
     cleanup_tmp_files
   end
 
-  def test_templates
-    Dir.glob("test/fixtures/*.haml").each do |file|
+  Dir.glob("test/fixtures/*.haml").each do |file|
+    define_method("test_template_#{File.basename(file, '.haml')}") do
       assert_valid?(file)
     end
   end
