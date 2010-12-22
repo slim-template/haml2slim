@@ -8,9 +8,7 @@ You may convert files using the included executable `haml2slim`.
 
     # haml2slim -h
 
-    Usage: haml2slim [options]
-        -s, --stdin                      Read input from standard input instead of an input file
-        -o, --output FILENAME            Output file destination
+    Usage: haml2slim INPUT_FILENAME_OR_DIRECTORY [OUTPUT_FILENAME_OR_DIRECTORY] [options]
             --trace                      Show a full traceback on error
         -h, --help                       Show this message
         -v, --version                    Print version
