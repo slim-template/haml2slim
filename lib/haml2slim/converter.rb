@@ -21,6 +21,7 @@ module Haml2Slim
         when ?:         then "#{line[1..-1]}:"
         when ?!         then line.sub('!!!', '! doctype')
         when ?-, ?=     then line
+        when ?~         then line.sub!(/^~/, "=")
         when ?/         then line
         when nil        then ""
         else "| #{line}"
