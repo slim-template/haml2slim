@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    haml2slim (0.4.2)
+    haml2slim (0.4.3)
       haml (~> 3.0.0)
       nokogiri
       ruby_parser
@@ -14,7 +14,7 @@ GEM
     ruby_parser (2.0.5)
       sexp_processor (~> 3.0)
     sexp_processor (3.0.5)
-    slim (0.8.1)
+    slim (0.8.3)
       temple (~> 0.1.6)
       tilt (~> 1.1)
     temple (0.1.6)
@@ -28,4 +28,4 @@ DEPENDENCIES
   haml2slim!
   nokogiri
   ruby_parser
-  slim (>= 0.8.1)
+  slim (>= 0.8.3)
