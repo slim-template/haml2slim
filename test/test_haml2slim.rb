@@ -65,6 +65,6 @@ class TestHaml2Slim < MiniTest::Unit::TestCase
   def assert_valid?(source)
     haml = File.open(source)
     slim = Haml2Slim.convert!(haml)
-    assert_equal true, Slim::Validator.validate!(slim)
+    assert_instance_of String, Slim::Engine.new.call(slim.to_s)
   end
 end
