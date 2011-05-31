@@ -36,7 +36,7 @@ module Haml2Slim
       end
 
       opts.on_tail('-v', '--version', 'Print version') do
-        puts "Slim #{Haml2Slim::VERSION}"
+        puts "Haml2Slim #{Haml2Slim::VERSION}"
         exit
       end
     end
