@@ -10,6 +10,7 @@ You may convert files using the included executable `haml2slim`.
 
     Usage: haml2slim INPUT_FILENAME_OR_DIRECTORY [OUTPUT_FILENAME_OR_DIRECTORY] [options]
             --trace                      Show a full traceback on error
+        -d, --delete                     Delete HAML files
         -h, --help                       Show this message
         -v, --version                    Print version
 
