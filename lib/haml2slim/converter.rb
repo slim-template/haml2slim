@@ -24,7 +24,7 @@ module Haml2Slim
           case line[0]
             when ?%, ?., ?# then parse_tag(line)
             when ?:         then "#{line[1..-1]}:"
-            when ?!         then line.sub(/^!!!/, '! doctype')
+            when ?!         then line.sub(/^!!!/, 'doctype')
             when ?-, ?=     then line
             when ?~         then line.sub(/^~/, '=')
             when ?/         then line.sub(/^\//, '/!')
