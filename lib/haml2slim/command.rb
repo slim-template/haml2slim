@@ -39,6 +39,10 @@ module Haml2Slim
         puts "Haml2Slim #{Haml2Slim::VERSION}"
         exit
       end
+
+      opts.on('-d', '--delete', 'Delete HAML files') do
+        @options[:delete] = true
+      end
     end
 
     def process!
@@ -70,6 +74,8 @@ module Haml2Slim
       @options[:output] = file ? File.open(slim_file, 'w') : $stdout
       @options[:output].puts Haml2Slim.convert!(File.open(file, 'r'))
       @options[:output].close
+
+      File.delete(file) if @options[:delete]
     end
   end
 end
