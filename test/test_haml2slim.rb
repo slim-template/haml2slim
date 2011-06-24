@@ -40,6 +40,11 @@ class TestHaml2Slim < MiniTest::Unit::TestCase
     FileUtils.rm_rf(slim_path)
   end
 
+  def test_delete_haml_file
+    `bin/haml2slim #{haml_file} -d`
+    assert_equal false, File.exist?(haml_file)
+  end
+
   private
 
   def tmp_dir
