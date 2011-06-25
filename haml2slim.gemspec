@@ -17,7 +17,7 @@ Gem::Specification.new do |s|
   s.files            = `git ls-files --  lib/* bin/* README.md`.split("\n")
   s.executables      = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
 
-  s.add_dependency "haml", ["~> 3.0.0"]
+  s.add_dependency "haml", [">= 3.0"]
   s.add_dependency "nokogiri"
   s.add_dependency "ruby_parser"
   s.add_development_dependency "slim", [">= 0.8.3"]
