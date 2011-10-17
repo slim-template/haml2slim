@@ -16,6 +16,9 @@ module Haml2Slim
       indent = line[/^[ \t]*/]
       line.strip!
 
+      # removes the HAML's whitespace removal characters ('>' and '<')
+      line.gsub!(/(>|<)$/, '')
+
       converted = case line[0, 2]
         when '&=' then line.sub(/^&=/, '==')
         when '!=' then line.sub(/^!=/, '=')
