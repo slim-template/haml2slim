@@ -51,6 +51,8 @@ module Haml2Slim
       @options[:input]  = file        = args.shift
       @options[:output] = destination = args.shift
 
+      @options[:input] = file = "-" unless file
+
       if File.directory?(@options[:input])
         Dir["#{@options[:input]}/**/*.haml"].each { |file| _process(file, destination) }
       else
@@ -71,8 +73,14 @@ module Haml2Slim
         slim_file = destination || slim_file
       end
 
-      @options[:output] = file ? File.open(slim_file, 'w') : $stdout
-      @options[:output].puts Haml2Slim.convert!(File.open(file, 'r'))
+      in_file = if @options[:input] == "-"
+                  $stdin
+                else
+                  File.open(file, 'r')
+                end
+
+      @options[:output] = slim_file && slim_file != '-' ? File.open(slim_file, 'w') : $stdout
+      @options[:output].puts Haml2Slim.convert!(in_file)
       @options[:output].close
 
       File.delete(file) if @options[:delete]

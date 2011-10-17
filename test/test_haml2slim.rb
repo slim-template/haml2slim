@@ -28,6 +28,26 @@ class TestHaml2Slim < MiniTest::Unit::TestCase
     assert_equal true, slim_file?(slim_path)
   end
 
+  def test_convert_file_to_stdout
+    File.open(haml_file, "w") do |f|
+      f.puts "%p\n  %h1 Hello"
+    end
+
+    IO.popen("bin/haml2slim #{haml_file} -", "r") do |f|
+      assert_equal "p\n  h1 Hello\n", f.read
+    end
+  end
+
+  def test_convert_stdin_to_stdout
+    File.open(haml_file, "w") do |f|
+      f.puts "%p\n  %h1 Hello"
+    end
+
+    IO.popen("cat #{haml_file} | bin/haml2slim", "r") do |f|
+      assert_equal "p\n  h1 Hello\n", f.read
+    end
+  end
+
   def test_convert_directory
     `bin/haml2slim #{tmp_dir}`
     assert_equal true, slim_file?
