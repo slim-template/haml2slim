@@ -65,7 +65,41 @@ class TestHaml2Slim < MiniTest::Unit::TestCase
     assert_equal false, File.exist?(haml_file)
   end
 
+  def test_hash_convert
+    haml = '%a{:title => 1 + 1, :href => "/#{test_obj.method}", :height => "50px", :width => "50px"}'
+    slim = 'a title=(1 + 1) href="/#{test_obj.method}" height="50px" width="50px"'
+    assert_haml_to_slim haml, slim
+  end
+
+  def test_data_attributes_convert
+    haml = '%a{:href => "test", :data => {:param1 => var, :param2 => 1 + 1, :param3 => "string"}}'
+    slim = 'a href="test" data-param1=var data-param2=(1 + 1) data-param3="string"'
+    assert_haml_to_slim haml, slim
+  end
+
+  def test_no_html_escape_predicate
+    haml = '!= method_call'
+    slim = '== method_call'
+    assert_haml_to_slim haml, slim
+  end
+
+  def test_no_html_escape_predicate2
+    haml = '%span!= method_call'
+    slim = 'span== method_call'
+    assert_haml_to_slim haml, slim
+  end
+
   private
+
+  def assert_haml_to_slim(actual_haml, expected_slim)
+    File.open(haml_file, "w") do |f|
+      f.puts actual_haml
+    end
+
+    IO.popen("cat #{haml_file} | bin/haml2slim", "r") do |f|
+      assert_equal expected_slim, f.read.strip
+    end
+  end
 
   def tmp_dir
     @tmp_dir ||= Dir.mktmpdir("haml2slim.")
