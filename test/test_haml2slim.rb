@@ -3,7 +3,6 @@ require 'tmpdir'
 
 class TestHaml2Slim < MiniTest::Unit::TestCase
   def setup
-    Slim::Engine.default_options[:id_delimiter] = '_'
     create_haml_file
   end
 
