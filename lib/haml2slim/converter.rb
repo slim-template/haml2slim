@@ -65,19 +65,17 @@ module Haml2Slim
         data_temp[key] = parse_attrs($1, 'data-')
         ":#{key} => #{key}"
       end
-      attrs.gsub!(/,?( ?):?"?([^"'{ ]+)"?\s*=>\s*([^,]*)/) do
-        space = $1
-        key = $2
-        value = $3
-        wrapped_value = value.to_s =~ /\s+/ ? "(#{value})" : value
-        "#{space}#{key_prefix}#{key}=#{wrapped_value}"
-      end
-      attrs.gsub!(/,?( ?)"?([^"'{ ]+)"?:\s*([^,]*)/) do
-        space = $1
-        key = $2
-        value = $3
-        wrapped_value = value.to_s =~ /\s+/ ? "(#{value})" : value
-        "#{space}#{key_prefix}#{key}=#{wrapped_value}"
+      [
+        /,?( ?):?"?([^"'{ ]+)"?\s*=>\s*([^,]*)/, 
+        /,?( ?)"?([^"'{ ]+)"?:\s*([^,]*)/
+      ].each do |regexp|
+        attrs.gsub!(regexp) do
+          space = $1
+          key = $2
+          value = $3
+          wrapped_value = value.to_s =~ /\s+/ ? "(#{value})" : value
+          "#{space}#{key_prefix}#{key}=#{wrapped_value}"
+        end
       end
       data_temp.each do |k, v|
         attrs.gsub!("#{k}=#{k}", v)
