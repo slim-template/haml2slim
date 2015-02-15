@@ -118,6 +118,12 @@ class TestHaml2Slim < MiniTest::Unit::TestCase
     assert_haml_to_slim haml, slim
   end
 
+  def test_html_tags_at_end_of_line
+    haml = "<span>Hello</span>"
+    slim = "<span>Hello</span>"
+    assert_haml_to_slim haml, slim
+  end
+
   private
 
   def assert_haml_to_slim(actual_haml, expected_slim)

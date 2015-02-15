@@ -31,7 +31,7 @@ module Haml2Slim
       line.strip!
 
       # removes the HAML's whitespace removal characters ('>' and '<')
-      line.gsub!(/(>|<)$/, '')
+      line.gsub!(/(>|<)$/, '') unless line =~ /^[%-=~<]/
 
       code = false
 
@@ -49,6 +49,7 @@ module Haml2Slim
             when ?~         then code = true; line.sub(/^~/, '=')
             when ?/         then line.sub(/^\//, '/!')
             when ?\         then line.sub(/^\\/, '|')
+            when ?<         then line
             when nil        then ""
             else "| #{line}"
           end
