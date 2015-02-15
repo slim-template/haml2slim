@@ -23,10 +23,17 @@ module Haml2Slim
         self.filter_indent = nil
       end
 
+      if continuation
+        self.continuation = line =~ /,\s*$/
+        return line
+      end
+
       line.strip!
 
       # removes the HAML's whitespace removal characters ('>' and '<')
       line.gsub!(/(>|<)$/, '')
+
+      code = false
 
       converted = case line[0, 2]
         when '&=' then line.sub(/^&=/, '==')
@@ -37,14 +44,16 @@ module Haml2Slim
             when ?%, ?., ?# then parse_tag(line)
             when ?:         then self.filter_indent = indent; "#{line[1..-1]}:"
             when ?!         then line == "!!!" ? line.sub(/^!!!/, 'doctype html') : line.sub(/^!!!/, 'doctype')
-            when ?-, ?=     then line
-            when ?~         then line.sub(/^~/, '=')
+            when ?-, ?=     then code = true; line
+            when ?~         then code = true; line.sub(/^~/, '=')
             when ?/         then line.sub(/^\//, '/!')
             when ?\         then line.sub(/^\\/, '|')
             when nil        then ""
             else "| #{line}"
           end
       end
+
+      self.continuation = code && line =~ /,\s*$/
 
       if converted.chomp!(' |')
         converted.sub!(/^\| /, '')
