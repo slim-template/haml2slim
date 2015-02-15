@@ -112,6 +112,12 @@ class TestHaml2Slim < MiniTest::Unit::TestCase
     assert_haml_to_slim haml, slim
   end
 
+  def test_lines_ending_in_bars
+    haml = "- 2.times do | i |\n  = i"
+    slim = "- 2.times do | i |\n  = i"
+    assert_haml_to_slim haml, slim
+  end
+
   private
 
   def assert_haml_to_slim(actual_haml, expected_slim)

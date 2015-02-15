@@ -56,9 +56,11 @@ module Haml2Slim
 
       self.continuation = code && line =~ /,\s*$/
 
-      if converted.chomp!(' |')
-        converted.sub!(/^\| /, '')
-        converted << ' \\'
+      unless (code || self.continuation) && line =~ /do\s*\|[^\|]*\|\s*$/
+        if converted.chomp!(' |')
+          converted.sub!(/^\| /, '')
+          converted << ' \\'
+        end
       end
 
       "#{indent}#{converted}\n"
