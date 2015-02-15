@@ -106,6 +106,12 @@ class TestHaml2Slim < MiniTest::Unit::TestCase
     assert_haml_to_slim haml, slim
   end
 
+  def test_interpolation_at_start_of_line
+    haml = "#{'a'}"
+    slim = "| #{'a'}"
+    assert_haml_to_slim haml, slim
+  end
+
   private
 
   def assert_haml_to_slim(actual_haml, expected_slim)

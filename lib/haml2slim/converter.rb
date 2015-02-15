@@ -39,6 +39,7 @@ module Haml2Slim
         when '&=' then line.sub(/^&=/, '==')
         when '!=' then line.sub(/^!=/, '==')
         when '-#' then line.sub(/^-#/, '/')
+        when '#{' then "| #{line}"
         else
           case line[0]
             when ?%, ?., ?# then parse_tag(line)
