@@ -50,32 +50,12 @@ module Haml2Slim
       tag_line.sub!(/^%/, '')
       tag_line.sub!(/^(\w+)!=/, '\1==')
 
-      if tag_line_contains_attr = tag_line.match(/([^\{]+)\{(.+)\}(.*)/)
-        tag, attrs, text = *tag_line_contains_attr[1..3]
-        "#{tag} #{parse_attrs(attrs)} #{text}"
+      if tag_line_contains_attr = tag_line.match(/([^\{]+)(\{.+\})(.*)/)
+        tag, hash, text = *tag_line_contains_attr[1..3]
+        "#{tag}*#{hash} #{text}"
       else
         tag_line.sub(/^!=/, '=')
       end
-    end
-
-    def parse_attrs(attrs, key_prefix='')
-      data_temp = {}
-      attrs.gsub!(/:data\s*=>\s*\{([^\}]*)\}/) do
-        key = rand(99999).to_s
-        data_temp[key] = parse_attrs($1, 'data-')
-        ":#{key} => #{key}"
-      end
-      attrs.gsub!(/,?( ?):?"?([^"'{ ]+)"?\s*=>\s*([^,]*)/) do
-        space = $1
-        key = $2
-        value = $3
-        wrapped_value = value.to_s =~ /\s+/ ? "(#{value})" : value
-        "#{space}#{key_prefix}#{key}=#{wrapped_value}"
-      end
-      data_temp.each do |k, v|
-        attrs.gsub!("#{k}=#{k}", v)
-      end
-      attrs
     end
   end
 end
