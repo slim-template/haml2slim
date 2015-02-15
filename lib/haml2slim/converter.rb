@@ -17,7 +17,7 @@ module Haml2Slim
     def parse_line(line)
       indent = line[/^[ \t]*/]
 
-      if filter_indent && indent.length > filter_indent.length
+      if filter_indent && (indent.length > filter_indent.length || line =~ /^s*$/)
         return line
       else
         self.filter_indent = nil
