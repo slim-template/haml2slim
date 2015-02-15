@@ -94,6 +94,12 @@ class TestHaml2Slim < MiniTest::Unit::TestCase
     assert_haml_to_slim haml, slim
   end
 
+  def test_filters
+    haml = ":javascript\n  var n = 1;"
+    slim = "javascript:\n  var n = 1;"
+    assert_haml_to_slim haml, slim
+  end
+
   private
 
   def assert_haml_to_slim(actual_haml, expected_slim)
