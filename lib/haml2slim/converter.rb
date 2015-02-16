@@ -1,6 +1,6 @@
 module Haml2Slim
   class Converter
-    attr_accessor :filter_indent, :continuation
+    attr_accessor :filter_indent, :expect_ruby
 
     def initialize(haml)
       @slim = ""
@@ -23,45 +23,40 @@ module Haml2Slim
         self.filter_indent = nil
       end
 
-      if continuation
-        self.continuation = line =~ /,\s*$/
-        return line
-      end
-
       line.strip!
 
-      # removes the HAML's whitespace removal characters ('>' and '<')
-      line.gsub!(/(>|<)$/, '') unless line =~ /^[%-=~<]/
+      if self.expect_ruby
+        converted = line
+      else
+        # removes the HAML's whitespace removal characters ('>' and '<')
+        line.gsub!(/(>|<)$/, '') unless line =~ /^[%-=~<]/
 
-      code = false
-
-      converted = case line[0, 2]
-        when '&=' then line.sub(/^&=/, '==')
-        when '!=' then line.sub(/^!=/, '==')
-        when '-#' then line.sub(/^-#/, '/')
-        when '#{' then "| #{line}"
-        else
-          case line[0]
-            when ?%, ?., ?# then parse_tag(line)
-            when ?:         then self.filter_indent = indent; "#{line[1..-1]}:"
-            when ?!         then line == "!!!" ? line.sub(/^!!!/, 'doctype html') : line.sub(/^!!!/, 'doctype')
-            when ?-, ?=     then code = true; line
-            when ?~         then code = true; line.sub(/^~/, '=')
-            when ?/         then line.sub(/^\//, '/!')
-            when ?\         then line.sub(/^\\/, '|')
-            when ?<         then line
-            when nil        then ""
-            else "| #{line}"
-          end
+        converted = case line[0, 2]
+          when '&=' then line.sub(/^&=/, '==')
+          when '!=' then line.sub(/^!=/, '==')
+          when '-#' then line.sub(/^-#/, '/')
+          when '#{' then "| #{line}"
+          else
+            case line[0]
+              when ?%, ?., ?# then parse_tag(line)
+              when ?:         then self.filter_indent = indent; "#{line[1..-1]}:"
+              when ?!         then line == "!!!" ? line.sub(/^!!!/, 'doctype html') : line.sub(/^!!!/, 'doctype')
+              when ?-, ?=     then self.expect_ruby = true; line
+              when ?~         then self.expect_ruby = true; line.sub(/^~/, '=')
+              when ?/         then line.sub(/^\//, '/!')
+              when ?\         then line.sub(/^\\/, '|')
+              when ?<         then line
+              when nil        then ""
+              else "| #{line}"
+            end
+        end
       end
 
-      self.continuation = code && line =~ /,\s*$/
-
-      unless (code || self.continuation) && line =~ /do\s*\|[^\|]*\|\s*$/
-        if converted.chomp!(' |')
-          converted.sub!(/^\| /, '')
-          converted << ' \\'
-        end
+      if self.expect_ruby && line =~ /(,|\s+\|)$/
+        self.expect_ruby = true
+        converted.gsub!(/\s+\|$/, ' \\')
+      else
+        self.expect_ruby = false
       end
 
       "#{indent}#{converted}\n"
@@ -73,8 +68,10 @@ module Haml2Slim
 
       if tag_line_contains_attr = tag_line.match(/([^\{]+)(\{.+\})(.*)/)
         tag, hash, text = *tag_line_contains_attr[1..3]
+        self.expect_ruby = text =~ /^[=-~!-]/
         "#{tag}*#{hash} #{text}"
       else
+        self.expect_ruby = tag_line =~ /^\w+[=-~!-]/
         tag_line.sub(/^!=/, '=')
       end
     end
