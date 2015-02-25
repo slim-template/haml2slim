@@ -28,7 +28,7 @@ module Haml2Slim
           case line[0]
             when ?%, ?., ?# then parse_tag(line)
             when ?:         then "#{line[1..-1]}:"
-            when ?!         then line == "!!!" ? line.sub(/^!!!/, 'doctype html') : line.sub(/^!!!/, 'doctype') 
+            when ?!         then line == "!!!" ? line.sub(/^!!!/, 'doctype html') : line.sub(/^!!!/, 'doctype')
             when ?-, ?=     then line
             when ?~         then line.sub(/^~/, '=')
             when ?/         then line.sub(/^\//, '/!')
@@ -60,22 +60,46 @@ module Haml2Slim
 
     def parse_attrs(attrs, key_prefix='')
       data_temp = {}
-      attrs.gsub!(/:data\s*=>\s*\{([^\}]*)\}/) do
+
+      attrs = data_hash_to_placeholder(attrs, type: 'ruby18', data_temp: data_temp)
+      attrs = data_hash_to_placeholder(attrs, type: 'ruby19', data_temp: data_temp)
+
+      attrs = hash_to_assignment(attrs, type: 'ruby18', key_prefix: key_prefix)
+      attrs = hash_to_assignment(attrs, type: 'ruby19', key_prefix: key_prefix)
+
+      data_temp.each do |k, v|
+        attrs.gsub!("#{k}=#{k}", v)
+      end
+
+      attrs
+    end
+
+    private
+
+    def data_hash_to_placeholder(attrs, type:, data_temp:)
+      data_hash_types = {
+        'ruby18' => /:data\s*=>\s*\{([^\}]*)\}/,
+        'ruby19' => /data:\s*\{([^\}]*)\}/
+      }
+
+      attrs.gsub data_hash_types[type] do
         key = rand(99999).to_s
         data_temp[key] = parse_attrs($1, 'data-')
         ":#{key} => #{key}"
       end
-      attrs.gsub!(/,?( ?):?"?([^"'{ ]+)"?\s*=>\s*([^,]*)/) do
-        space = $1
-        key = $2
-        value = $3
+    end
+
+    def hash_to_assignment(hash, type:, key_prefix:)
+      has_types = {
+        'ruby18' => /,?( ?):?"?([^"'{ ]+)"?\s*=>\s*([^,]*)/,
+        'ruby19' => /,?( ?)([^"'{ ]+)\:\s*([^,]*)/
+      }
+
+      hash.gsub has_types[type] do
+        space, key, value = $1, $2, $3
         wrapped_value = value.to_s =~ /\s+/ ? "(#{value})" : value
         "#{space}#{key_prefix}#{key}=#{wrapped_value}"
       end
-      data_temp.each do |k, v|
-        attrs.gsub!("#{k}=#{k}", v)
-      end
-      attrs
     end
   end
 end

@@ -70,8 +70,20 @@ class TestHaml2Slim < MiniTest::Unit::TestCase
     assert_haml_to_slim haml, slim
   end
 
+  def test_hash19_convert
+    haml = '%a{title: 1 + 1, href: "/#{test_obj.method}", height: "50px", width: "50px"}'
+    slim = 'a title=(1 + 1) href="/#{test_obj.method}" height="50px" width="50px"'
+    assert_haml_to_slim haml, slim
+  end
+
   def test_data_attributes_convert
     haml = '%a{:href => "test", :data => {:param1 => var, :param2 => 1 + 1, :param3 => "string"}}'
+    slim = 'a href="test" data-param1=var data-param2=(1 + 1) data-param3="string"'
+    assert_haml_to_slim haml, slim
+  end
+
+  def test_data_attributes19_convert
+    haml = '%a{:href => "test", data: {:param1 => var, param2: 1 + 1, param3: "string"}}'
     slim = 'a href="test" data-param1=var data-param2=(1 + 1) data-param3="string"'
     assert_haml_to_slim haml, slim
   end
