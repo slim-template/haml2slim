@@ -76,6 +76,12 @@ class TestHaml2Slim < MiniTest::Unit::TestCase
     assert_haml_to_slim haml, slim
   end
 
+  def test_new_syntax_hash_convert
+    haml = '%a{title: 1 + 1, href: "/#{test_obj.method}", height: "50px", width: "50px"}'
+    slim = 'a title=(1 + 1) href="/#{test_obj.method}" height="50px" width="50px"'
+    assert_haml_to_slim haml, slim
+  end
+
   def test_no_html_escape_predicate
     haml = '!= method_call'
     slim = '== method_call'
