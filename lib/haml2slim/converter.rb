@@ -60,10 +60,18 @@ module Haml2Slim
 
     def parse_attrs(attrs, key_prefix='')
       data_temp = {}
-
+      # binding.pry if attrs == "data: { url: root_path( @data, format: 'js' ) }"
       attrs.gsub!(/(\s|\A|,)(\b[^{}:,=>\s]+)(:)/) do
         "#{$1}:#{$2} =>"
       end
+
+      attrs.gsub!(/\((.*):(.*)\s=>\s(.*)\)/) do
+        "(#{$1}#{$2}: #{$3})"
+      end
+
+      attrs.gsub!(/\((\s)/, '(')
+      attrs.gsub!(/\s\)/, ')')
+
 
       attrs.gsub!(/:([^{}:,=>]+\w)\s*=>\s*\{([^\}]*)\}/) do
         key = rand(99999).to_s
@@ -75,18 +83,21 @@ module Haml2Slim
         key = $2
         value = $3
 
-
         "#{space}#{key_prefix}#{key}=#{wrapped_value(value)}"
       end
       data_temp.each do |k, v|
         attrs.gsub!("#{k}=#{k}", v)
       end
+      attrs.gsub!(/^\s/, '')
+      attrs.gsub!(/\s$/, '')
       attrs
     end
 
     def wrapped_value(value)
       value = value.to_s
-      return "(#{value})" if value =~ /\s+/ && !(value =~ /('|").*('|")/)
+      return value if value =~ /('|").*('|")/
+      return value if value =~ /(\().*(\))/
+      return "(#{value})" if value =~ /\s+/
       value
     end
   end

@@ -90,7 +90,7 @@ class TestHaml2Slim < MiniTest::Unit::TestCase
 
   def test_parse_attrs_ruby_two
     haml = 'href: "test", attr: {param1: var, param2: 1 + 1, param3: "string"}, data: { toggle: true }'
-    slim = 'href="test" attr-param1=var attr-param2=(1 + 1) attr-param3="string"  data-toggle=(true )'
+    slim = 'href="test" attr-param1=var attr-param2=(1 + 1) attr-param3="string" data-toggle=(true )'
     results = Haml2Slim::Converter.new(haml).parse_attrs(haml)
     assert_equal slim, results
   end
@@ -117,8 +117,8 @@ class TestHaml2Slim < MiniTest::Unit::TestCase
   end
 
   def test_applicaiton
-    haml = "#random-id.fade{ data: { url: root_path( @data, format: 'js' ) }}"
-    slim = "#random-id.fade data-url=root_path(@data, format: 'js')"
+    haml = "data: { url: root_path( @data, format: 'js' ) }"
+    slim = "data-url=root_path(@data, format: 'js')"
     results = Haml2Slim::Converter.new(haml).parse_attrs(haml)
     assert_equal slim, results
   end
