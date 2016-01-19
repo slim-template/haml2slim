@@ -109,13 +109,19 @@ class TestHaml2Slim < MiniTest::Unit::TestCase
     assert_equal slim, results
   end
 
-  def test_
+  def test_it_does_not_replace_inline_if
     haml = "class: (boolean_true_false? ? 'class one' : 'class two'), cool: 'working'"
     slim = "class=(boolean_true_false? ? 'class one' : 'class two') cool='working'"
     results = Haml2Slim::Converter.new(haml).parse_attrs(haml)
     assert_equal slim, results
   end
 
+  def test_applicaiton
+    haml = "#random-id.fade{ data: { url: root_path( @data, format: 'js' ) }}"
+    slim = "#random-id.fade data-url=root_path(@data, format: 'js')"
+    results = Haml2Slim::Converter.new(haml).parse_attrs(haml)
+    assert_equal slim, results
+  end
 
   def test_no_html_escape_predicate
     haml = '!= method_call'
