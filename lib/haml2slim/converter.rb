@@ -28,7 +28,7 @@ module Haml2Slim
           case line[0]
             when ?%, ?., ?# then parse_tag(line)
             when ?:         then "#{line[1..-1]}:"
-            when ?!         then line == "!!!" ? line.sub(/^!!!/, 'doctype html') : line.sub(/^!!!/, 'doctype') 
+            when ?!         then line == "!!!" ? line.sub(/^!!!/, 'doctype html') : line.sub(/^!!!/, 'doctype')
             when ?-, ?=     then line
             when ?~         then line.sub(/^~/, '=')
             when ?/         then line.sub(/^\//, '/!')
@@ -60,22 +60,34 @@ module Haml2Slim
 
     def parse_attrs(attrs, key_prefix='')
       data_temp = {}
-      attrs.gsub!(/:data\s*=>\s*\{([^\}]*)\}/) do
+
+      attrs.gsub!(/(\s|\A|,)(\b[^{}:,=>\s]+)(:)/) do
+        "#{$1}:#{$2} =>"
+      end
+
+      attrs.gsub!(/:([^{}:,=>]+\w)\s*=>\s*\{([^\}]*)\}/) do
         key = rand(99999).to_s
-        data_temp[key] = parse_attrs($1, 'data-')
+        data_temp[key] = parse_attrs($2, "#{$1}-")
         ":#{key} => #{key}"
       end
       attrs.gsub!(/,?( ?):?"?([^"'{ ]+)"?\s*=>\s*([^,]*)/) do
         space = $1
         key = $2
         value = $3
-        wrapped_value = value.to_s =~ /\s+/ ? "(#{value})" : value
-        "#{space}#{key_prefix}#{key}=#{wrapped_value}"
+
+
+        "#{space}#{key_prefix}#{key}=#{wrapped_value(value)}"
       end
       data_temp.each do |k, v|
         attrs.gsub!("#{k}=#{k}", v)
       end
       attrs
+    end
+
+    def wrapped_value(value)
+      value = value.to_s
+      return "(#{value})" if value =~ /\s+/ && !(value =~ /('|").*('|")/)
+      value
     end
   end
 end

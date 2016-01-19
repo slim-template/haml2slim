@@ -76,6 +76,47 @@ class TestHaml2Slim < MiniTest::Unit::TestCase
     assert_haml_to_slim haml, slim
   end
 
+  def test_ruby_two_attributes_convert
+    haml = '%a{href: "test", data: { param1: var, param2: 1 + 1, param3: "string" }}'
+    slim = 'a href="test" data-param1=var data-param2=(1 + 1) data-param3="string"'
+    assert_haml_to_slim haml, slim
+  end
+
+  def test_ruby_two_attributes_convert
+    haml = '%a{href: "test", data: {param1: var, param2: 1 + 1, param3: "string"}}'
+    slim = 'a href="test" data-param1=var data-param2=(1 + 1) data-param3="string"'
+    assert_haml_to_slim haml, slim
+  end
+
+  def test_parse_attrs_ruby_two
+    haml = 'href: "test", attr: {param1: var, param2: 1 + 1, param3: "string"}, data: { toggle: true }'
+    slim = 'href="test" attr-param1=var attr-param2=(1 + 1) attr-param3="string"  data-toggle=(true )'
+    results = Haml2Slim::Converter.new(haml).parse_attrs(haml)
+    assert_equal slim, results
+  end
+
+  def test_parse_attrs_styles
+    haml = 'style: "margin-top: 10px;"'
+    slim = 'style="margin-top: 10px;"'
+    results = Haml2Slim::Converter.new(haml).parse_attrs(haml)
+    assert_equal slim, results
+  end
+
+  def test_parse_attrs_styles_helper_method
+    haml = 'style: custom_style(\'blue\')'
+    slim = 'style=custom_style(\'blue\')'
+    results = Haml2Slim::Converter.new(haml).parse_attrs(haml)
+    assert_equal slim, results
+  end
+
+  def test_
+    haml = "class: (boolean_true_false? ? 'class one' : 'class two'), cool: 'working'"
+    slim = "class=(boolean_true_false? ? 'class one' : 'class two') cool='working'"
+    results = Haml2Slim::Converter.new(haml).parse_attrs(haml)
+    assert_equal slim, results
+  end
+
+
   def test_no_html_escape_predicate
     haml = '!= method_call'
     slim = '== method_call'
@@ -89,6 +130,8 @@ class TestHaml2Slim < MiniTest::Unit::TestCase
   end
 
   private
+
+
 
   def assert_haml_to_slim(actual_haml, expected_slim)
     File.open(haml_file, "w") do |f|
