@@ -1,4 +1,5 @@
 require 'securerandom'
+require 'pry'
 module Haml2Slim
   class Converter
     def initialize(haml)
@@ -61,7 +62,7 @@ module Haml2Slim
 
     def parse_attrs(attrs, key_prefix='')
       data_temp = {}
-      # binding.pry if attrs == "data: { url: root_path( @data, format: 'js' ) }"
+      # binding.pry if attrs == "type: 'button', class: 'close', data: { dismiss: 'modal' }"
       attrs.gsub!(/(\s|\A|,)(\b[^{}:,=>\s]+)(:)/) do
         "#{$1}:#{$2} =>"
       end
@@ -73,12 +74,18 @@ module Haml2Slim
       attrs.gsub!(/\((\s)/, '(')
       attrs.gsub!(/\s\)/, ')')
 
-
       attrs.gsub!(/:([^{}:,=>]+\w)\s*=>\s*\{([^\}]*)\}/) do
         key = SecureRandom.hex # Creates uniq numbers this way
-        data_temp[key] = parse_attrs($2, "#{$1}-")
+        data_temp[key] = { key: $1, value: $2 }
         ":#{key} => #{key}"
       end
+      data_temp.each do |key, values|
+        data_temp[key] = parse_attrs(values[:value], "#{values[:key]}-")
+      end
+
+      attrs.gsub!(/^\s/, '')
+      attrs.gsub!(/\s$/, '')
+
       attrs.gsub!(/,?( ?):?"?([^"'{ ]+)"?\s*=>\s*([^,]*)/) do
         space = $1
         key = $2
@@ -86,11 +93,10 @@ module Haml2Slim
 
         "#{space}#{key_prefix}#{key}=#{wrapped_value(value)}"
       end
+
       data_temp.each do |k, v|
         attrs.gsub!("#{k}=#{k}", v)
       end
-      attrs.gsub!(/^\s/, '')
-      attrs.gsub!(/\s$/, '')
       attrs
     end
 

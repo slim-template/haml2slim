@@ -90,7 +90,7 @@ class TestHaml2Slim < MiniTest::Unit::TestCase
 
   def test_parse_attrs_ruby_two
     haml = 'href: "test", attr: {param1: var, param2: 1 + 1, param3: "string"}, data: { toggle: true }'
-    slim = 'href="test" attr-param1=var attr-param2=(1 + 1) attr-param3="string" data-toggle=(true )'
+    slim = 'href="test" attr-param1=var attr-param2=(1 + 1) attr-param3="string" data-toggle=true'
     results = Haml2Slim::Converter.new(haml).parse_attrs(haml)
     assert_equal slim, results
   end
@@ -128,6 +128,12 @@ class TestHaml2Slim < MiniTest::Unit::TestCase
     slim = "type='button' class='close' data-dismiss='modal'"
     results = Haml2Slim::Converter.new(haml).parse_attrs(haml)
     assert_equal slim, results
+  end
+
+  def test_should_not_fail_to_transform_data
+    haml = "%button#lock-something-with-a-button{ type: 'button', class: 'close', data: { dismiss: 'modal' } }"
+    slim = "button#lock-something-with-a-button type='button' class='close' data-dismiss='modal'"
+    assert_haml_to_slim haml, slim
   end
 
   def test_no_html_escape_predicate
