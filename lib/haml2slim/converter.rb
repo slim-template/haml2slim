@@ -1,3 +1,4 @@
+require 'securerandom'
 module Haml2Slim
   class Converter
     def initialize(haml)
@@ -74,7 +75,7 @@ module Haml2Slim
 
 
       attrs.gsub!(/:([^{}:,=>]+\w)\s*=>\s*\{([^\}]*)\}/) do
-        key = rand(99999).to_s
+        key = SecureRandom.hex # Creates uniq numbers this way
         data_temp[key] = parse_attrs($2, "#{$1}-")
         ":#{key} => #{key}"
       end

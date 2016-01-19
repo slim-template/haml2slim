@@ -116,9 +116,16 @@ class TestHaml2Slim < MiniTest::Unit::TestCase
     assert_equal slim, results
   end
 
-  def test_applicaiton
+  def test_pathing_conversion_with_hash_attributes
     haml = "data: { url: root_path( @data, format: 'js' ) }"
     slim = "data-url=root_path(@data, format: 'js')"
+    results = Haml2Slim::Converter.new(haml).parse_attrs(haml)
+    assert_equal slim, results
+  end
+
+  def test_complex_data_object
+    haml = "type: 'button', class: 'close', data: { dismiss: 'modal' }"
+    slim = "type='button' class='close' data-dismiss='modal'"
     results = Haml2Slim::Converter.new(haml).parse_attrs(haml)
     assert_equal slim, results
   end
