@@ -1,5 +1,4 @@
 require 'securerandom'
-require 'pry'
 module Haml2Slim
   class Converter
     def initialize(haml)
