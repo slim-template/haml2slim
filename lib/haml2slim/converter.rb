@@ -1,6 +1,8 @@
 module Haml2Slim
   class Converter
     def initialize(haml)
+      @semaphore = false
+      @sem_indent = 0
       @slim = ""
 
       haml.each_line do |line|
@@ -13,29 +15,44 @@ module Haml2Slim
     end
 
     def parse_line(line)
+
       indent = line[/^[ \t]*/]
+
       line.strip!
 
       # removes the HAML's whitespace removal characters ('>' and '<')
       line.gsub!(/(>|<)$/, '')
 
-      converted = case line[0, 2]
-        when '&=' then line.sub(/^&=/, '==')
-        when '!=' then line.sub(/^!=/, '==')
-        when '-#' then line.sub(/^-#/, '/')
-        when '#{' then line
-        else
-          case line[0]
-            when ?%, ?., ?# then parse_tag(line)
-            when ?:         then "#{line[1..-1]}:"
-            when ?!         then line == "!!!" ? line.sub(/^!!!/, 'doctype html') : line.sub(/^!!!/, 'doctype') 
-            when ?-, ?=     then line
-            when ?~         then line.sub(/^~/, '=')
-            when ?/         then line.sub(/^\//, '/!')
-            when ?\         then line.sub(/^\\/, '|')
-            when nil        then ""
-            else "| #{line}"
-          end
+      if indent.size <= @sem_indent && !line[0].nil?
+        @semaphore = false
+      end
+
+      if !@semaphore
+        converted = case line[0, 2]
+                    when '&=' then line.sub(/^&=/, '==')
+                    when '!=' then line.sub(/^!=/, '==')
+                    when '-#' then line.sub(/^-#/, '/')
+                    when '#{' then line
+                    else
+                      case line[0]
+                      when ?%, ?., ?# then parse_tag(line)
+                      when ?:         then "#{line[1..-1]}:"
+                      when ?!         then line == "!!!" ? line.sub(/^!!!/, 'doctype html') : line.sub(/^!!!/, 'doctype')
+                      when ?-, ?=     then line
+                      when ?~         then line.sub(/^~/, '=')
+                      when ?/         then line.sub(/^\//, '/!')
+                      when ?\         then line.sub(/^\\/, '|')
+                      when nil        then ""
+                      else "| #{line}"
+                      end
+                    end
+        elsif
+        converted = "#{line}"
+      end
+
+      if converted == 'ruby:' || converted == 'javascript:' || converted == 'script'
+        @semaphore = true
+        @sem_indent = indent.size
       end
 
       if converted.chomp!(' |')
@@ -49,6 +66,7 @@ module Haml2Slim
     def parse_tag(tag_line)
       tag_line.sub!(/^%/, '')
       tag_line.sub!(/^(\w+)!=/, '\1==')
+
 
       if tag_line_contains_attr = tag_line.match(/([^\{]+)\{(.+)\}(.*)/)
         tag, attrs, text = *tag_line_contains_attr[1..3]
@@ -65,6 +83,7 @@ module Haml2Slim
         data_temp[key] = parse_attrs($1, 'data-')
         ":#{key} => #{key}"
       end
+
       attrs.gsub!(/,?( ?):?"?([^"'{ ]+)"?\s*=>\s*([^,]*)/) do
         space = $1
         key = $2
@@ -72,6 +91,14 @@ module Haml2Slim
         wrapped_value = value.to_s =~ /\s+/ ? "(#{value})" : value
         "#{space}#{key_prefix}#{key}=#{wrapped_value}"
       end
+
+      attrs.gsub!(/,?( ?):?"?([^"'{ ]+)"?\s*:\s*([^,]*)/) do |v|
+        space = $1
+        key = $2
+        value = $3
+        "#{space}#{key_prefix}#{key}=#{value}"
+      end
+
       data_temp.each do |k, v|
         attrs.gsub!("#{k}=#{k}", v)
       end
