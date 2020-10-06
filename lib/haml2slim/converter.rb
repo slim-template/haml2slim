@@ -113,8 +113,6 @@ module Haml2Slim
         flag = false
       end
 
-
-
       data_temp.each do |k, v|
         attrs.gsub!("#{k}=#{k}", v)
       end
