@@ -70,13 +70,18 @@ module Haml2Slim
 
       if tag_line_contains_attr = tag_line.match(/([^\{]+)\{(.+)\}(.*)/)
         tag, attrs, text = *tag_line_contains_attr[1..3]
-        "#{tag} #{parse_attrs(attrs)} #{text}"
+        if text.empty?
+          "#{tag} #{parse_attrs(attrs)}"
+        else
+          "#{tag} #{parse_attrs(attrs)} #{text}"
+        end
       else
         tag_line.sub(/^!=/, '=')
       end
     end
 
     def parse_attrs(attrs, key_prefix='')
+      flag = true
       data_temp = {}
       attrs.gsub!(/:data\s*=>\s*\{([^\}]*)\}/) do
         key = rand(99999).to_s
@@ -84,24 +89,36 @@ module Haml2Slim
         ":#{key} => #{key}"
       end
 
-      attrs.gsub!(/,?( ?):?"?([^"'{ ]+)"?\s*=>\s*([^,]*)/) do
-        space = $1
-        key = $2
-        value = $3
-        wrapped_value = value.to_s =~ /\s+/ ? "(#{value})" : value
-        "#{space}#{key_prefix}#{key}=#{wrapped_value}"
+
+      if flag
+        attrs.gsub!(/,?( ?):?"?([^"'{ ]+)"?\s*=>\s*([^,]*)/) do
+          space = $1
+          key = $2
+          value = $3
+          wrapped_value = value.to_s =~ /\s+/ ? "(#{value})" : value
+
+          "#{space}#{key_prefix}#{key}=#{wrapped_value}"
+        end
+        flag = false
       end
 
-      attrs.gsub!(/,?( ?):?"?([^"'{ ]+)"?\s*:\s*([^,]*)/) do |v|
-        space = $1
-        key = $2
-        value = $3
-        "#{space}#{key_prefix}#{key}=#{value}"
+      if flag
+        attrs.gsub!(/,?( ?):?"?([^"'{ ]+)"?\s*:\s*([^,]*)/) do |v|
+          space = $1
+          key = $2
+          value = $3
+
+          "#{space}#{key_prefix}#{key}=#{value}"
+        end
+        flag = false
       end
+
+
 
       data_temp.each do |k, v|
         attrs.gsub!("#{k}=#{k}", v)
       end
+      attrs.rstrip!
       attrs
     end
   end
